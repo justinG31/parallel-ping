@@ -31,7 +31,7 @@ func main() {
 	}
 }
 
-// asks user for user input of web address for ping and number of pings
+// asks for user input of web address for ping and number of pings
 func askInput() (string, int) {
 	fmt.Println("Enter the web address that you want to ping:")
 	var url string
