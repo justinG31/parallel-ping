@@ -14,6 +14,23 @@ func main() {
 	var url, count = askInput()
 	sCount := strconv.Itoa(count)
 
+	singlePing(sCount, url)
+}
+
+// asks for user input of web address for ping and number of pings
+func askInput() (string, int) {
+	fmt.Println("Enter the web address that you want to ping:")
+	var url string
+	fmt.Scanln(&url)
+
+	fmt.Println("Enter the number of pings would like to do:")
+	var count int
+	fmt.Scanln(&count)
+	fmt.Println("Thanks! We will try", count, "pings to", url)
+	return url, count
+}
+
+func singlePing(sCount string, url string) {
 	// creating command using input of number of pings and web address
 	cmd := exec.Command("ping", "-c", sCount, url)
 	output := &bytes.Buffer{}
@@ -29,17 +46,4 @@ func main() {
 	if len(output.Bytes()) > 0 {
 		fmt.Printf("Output: %s\n", string(output.Bytes()))
 	}
-}
-
-// asks for user input of web address for ping and number of pings
-func askInput() (string, int) {
-	fmt.Println("Enter the web address that you want to ping:")
-	var url string
-	fmt.Scanln(&url)
-
-	fmt.Println("Enter the number of pings would like to do:")
-	var count int
-	fmt.Scanln(&count)
-	fmt.Println("Thanks! We will try", count, "pings to", url)
-	return url, count
 }
