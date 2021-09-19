@@ -7,23 +7,39 @@ import (
 	"time"
 )
 
+// data structure to capture ping data from go routines
+type pingData struct {
+	url  string
+	time time.Duration
+}
+
 // used https://stackoverflow.com/questions/42213996/trying-to-parse-a-stdout-on-command-line-with-golang as a reference
 func main() {
 	// calls function to get user input
-	var url1, url2, url3 = askInput()
+	var urlA, urlB, urlC = askInput()
 
-	fmt.Println("Pinging", url1)
-	go singlePing(url1)
-	fmt.Println("Pinging", url2)
-	go singlePing(url2)
-	fmt.Println("Pinging", url3)
-	go singlePing(url3)
+	// make channel and start go routines
+	c := make(chan pingData)
+	fmt.Println("Pinging", urlA)
+	go singlePing(urlA, c)
+	fmt.Println("Pinging", urlB)
+	go singlePing(urlB, c)
+	fmt.Println("Pinging", urlC)
+	go singlePing(urlC, c)
+
+	// receive data from channel
+	ping1, ping2, ping3 := <-c, <-c, <-c
+
+	// display data from go routines
+	fmt.Println(ping1.url, "is:", ping1.time)
+	fmt.Println(ping2.url, "is:", ping2.time)
+	fmt.Println(ping3.url, "is:", ping3.time)
 
 	var input string
 	fmt.Scanln(&input)
 }
 
-// asks for user input of web address for ping and number of pings
+// asks for user input of web addresses
 func askInput() (string, string, string) {
 	fmt.Println("We will ping 3 websites for you to compare.")
 	fmt.Println("Enter the first web address that you want to ping:")
@@ -42,7 +58,9 @@ func askInput() (string, string, string) {
 	return url1, url2, url3
 }
 
-func singlePing(url string) {
+// function for go routines to ping a single web address 100 times
+func singlePing(url string, c chan pingData) {
+	// captures time at start of routine
 	time1 := time.Now()
 	// creating command using input of number of pings and web address
 	cmd := exec.Command("ping", "-c 100", url)
@@ -53,8 +71,10 @@ func singlePing(url string) {
 		os.Stderr.WriteString(fmt.Sprintf("Error! %s\n", err.Error()))
 	}
 
+	// captures time at end of routine
 	time2 := time.Now()
 	timeDiff := time2.Sub(time1)
 
-	fmt.Println("runtime is", timeDiff)
+	// sends data through channel
+	c <- pingData{url, timeDiff}
 }
