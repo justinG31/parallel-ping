@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
 // used https://stackoverflow.com/questions/42213996/trying-to-parse-a-stdout-on-command-line-with-golang as a reference
@@ -31,6 +32,7 @@ func askInput() (string, int) {
 }
 
 func singlePing(sCount string, url string) {
+	time1 := time.Now()
 	// creating command using input of number of pings and web address
 	cmd := exec.Command("ping", "-c", sCount, url)
 	output := &bytes.Buffer{}
@@ -42,8 +44,8 @@ func singlePing(sCount string, url string) {
 		os.Stderr.WriteString(fmt.Sprintf("Error! %s\n", err.Error()))
 	}
 
-	// prints the output
-	if len(output.Bytes()) > 0 {
-		fmt.Printf("Output: %s\n", string(output.Bytes()))
-	}
+	time2 := time.Now()
+	timeDiff := time2.Sub(time1)
+
+	fmt.Println("runtime is", timeDiff)
 }
