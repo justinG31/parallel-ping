@@ -19,36 +19,44 @@ type pingData struct {
 }
 
 func main() {
-	totalTime1 := time.Now()
+
 	// specifies number of processors to use
-	runtime.GOMAXPROCS(2)
+	runtime.GOMAXPROCS(1)
 
 	// calls function to get user input
 	var urlA, urlB, urlC = askInput()
-
+	totalTime1 := time.Now()
 	// specify how many routines needed to be waited for
-	waitToFinish.Add(3)
-
+	waitToFinish.Add(9)
 	// make channel and start go routines
-	c := make(chan pingData)
-	fmt.Println("Pinging", urlA)
-	go singlePing(urlA, c)
-	fmt.Println("Pinging", urlB)
-	go singlePing(urlB, c)
-	fmt.Println("Pinging", urlC)
-	go singlePing(urlC, c)
+	c := make(chan pingData, 9)
+	//make three routines for each website
+	for i := 0; i < 3; i++ {
+		go singlePing(urlA, c)
+	}
+	for j := 0; j < 3; j++ {
 
-	// receive data from channel
-	ping1, ping2, ping3 := <-c, <-c, <-c
-
-	// display data from go routines
-	fmt.Println(ping1.url, "is:", ping1.time)
-	fmt.Println(ping2.url, "is:", ping2.time)
-	fmt.Println(ping3.url, "is:", ping3.time)
+		go singlePing(urlB, c)
+	}
+	for k := 0; k < 3; k++ {
+		go singlePing(urlC, c)
+	}
 
 	//let the go-routines finish running before the main function stops running
 	waitToFinish.Wait()
-	fmt.Println("All go-routines have finished")
+	// receive data from channel and print out the data
+	ping1, ping2, ping3, ping4, ping5, ping6, ping7, ping8, ping9 := <-c, <-c, <-c, <-c, <-c, <-c, <-c, <-c, <-c
+
+	fmt.Println(ping1.url, "is: ", ping1.time)
+	fmt.Println(ping2.url, "is: ", ping2.time)
+	fmt.Println(ping3.url, "is: ", ping3.time)
+	fmt.Println(ping4.url, "is: ", ping4.time)
+	fmt.Println(ping5.url, "is: ", ping5.time)
+	fmt.Println(ping6.url, "is: ", ping6.time)
+	fmt.Println(ping7.url, "is: ", ping7.time)
+	fmt.Println(ping8.url, "is: ", ping8.time)
+	fmt.Println(ping9.url, "is: ", ping9.time)
+
 	totalTime2 := time.Now()
 	totalTime := totalTime2.Sub(totalTime1)
 	fmt.Println("total main time:", totalTime)
