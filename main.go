@@ -15,7 +15,13 @@ func main() {
 	var url, count = askInput()
 	sCount := strconv.Itoa(count)
 
-	singlePing(sCount, url)
+	for i := 0; i < 3; i++ {
+		go singlePing(sCount, url)
+	}
+
+	var input string
+	fmt.Scanln(&input)
+
 }
 
 // asks for user input of web address for ping and number of pings
