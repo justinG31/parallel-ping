@@ -1,17 +1,16 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"time"
 )
 
 // used https://stackoverflow.com/questions/42213996/trying-to-parse-a-stdout-on-command-line-with-golang as a reference
 func main() {
 	// calls function to get user input
+<<<<<<< HEAD
 	var url, count = askInput()
 	sCount := strconv.Itoa(count)
 
@@ -22,27 +21,41 @@ func main() {
 	var input string
 	fmt.Scanln(&input)
 
+=======
+	var url1, url2, url3 = askInput()
+
+	fmt.Println("Pinging", url1)
+	singlePing(url1)
+	fmt.Println("Pinging", url2)
+	singlePing(url2)
+	fmt.Println("Pinging", url3)
+	singlePing(url3)
+>>>>>>> fd45475f9743bade93ce52c4eabe181ae3151eeb
 }
 
 // asks for user input of web address for ping and number of pings
-func askInput() (string, int) {
-	fmt.Println("Enter the web address that you want to ping:")
-	var url string
-	fmt.Scanln(&url)
+func askInput() (string, string, string) {
+	fmt.Println("We will ping 3 websites for you to compare.")
+	fmt.Println("Enter the first web address that you want to ping:")
+	var url1 string
+	fmt.Scanln(&url1)
 
-	fmt.Println("Enter the number of pings would like to do:")
-	var count int
-	fmt.Scanln(&count)
-	fmt.Println("Thanks! We will try", count, "pings to", url)
-	return url, count
+	fmt.Println("Enter the second web address that you want to ping:")
+	var url2 string
+	fmt.Scanln(&url2)
+
+	fmt.Println("Enter the third web address that you want to ping:")
+	var url3 string
+	fmt.Scanln(&url3)
+
+	fmt.Println("Thanks! We will try", 100, "pings to", url1, ",", url2, ", and", url3)
+	return url1, url2, url3
 }
 
-func singlePing(sCount string, url string) {
+func singlePing(url string) {
 	time1 := time.Now()
 	// creating command using input of number of pings and web address
-	cmd := exec.Command("ping", "-c", sCount, url)
-	output := &bytes.Buffer{}
-	cmd.Stdout = output
+	cmd := exec.Command("ping", "-c 100", url)
 
 	// prints if error occurs
 	err := cmd.Run()
