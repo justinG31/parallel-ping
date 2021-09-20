@@ -21,7 +21,7 @@ type pingData struct {
 func main() {
 
 	// specifies number of processors to use
-	runtime.GOMAXPROCS(1)
+	runtime.GOMAXPROCS(4)
 
 	// calls function to get user input
 	var urlA, urlB, urlC = askInput()
