@@ -4,8 +4,13 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
+	"sync"
 	"time"
 )
+
+// create variable to wait for go-routines to finish
+var waitToFinish sync.WaitGroup
 
 // data structure to capture ping data from go routines
 type pingData struct {
@@ -13,30 +18,48 @@ type pingData struct {
 	time time.Duration
 }
 
-// used https://stackoverflow.com/questions/42213996/trying-to-parse-a-stdout-on-command-line-with-golang as a reference
 func main() {
+
+	// specifies number of processors to use
+	runtime.GOMAXPROCS(4)
+
 	// calls function to get user input
 	var urlA, urlB, urlC = askInput()
-
+	totalTime1 := time.Now()
+	// specify how many routines needed to be waited for
+	waitToFinish.Add(9)
 	// make channel and start go routines
-	c := make(chan pingData)
-	fmt.Println("Pinging", urlA)
-	go singlePing(urlA, c)
-	fmt.Println("Pinging", urlB)
-	go singlePing(urlB, c)
-	fmt.Println("Pinging", urlC)
-	go singlePing(urlC, c)
+	c := make(chan pingData, 9)
+	//make three routines for each website
+	for i := 0; i < 3; i++ {
+		go singlePing(urlA, c)
+	}
+	for j := 0; j < 3; j++ {
 
-	// receive data from channel
-	ping1, ping2, ping3 := <-c, <-c, <-c
+		go singlePing(urlB, c)
+	}
+	for k := 0; k < 3; k++ {
+		go singlePing(urlC, c)
+	}
 
-	// display data from go routines
-	fmt.Println(ping1.url, "is:", ping1.time)
-	fmt.Println(ping2.url, "is:", ping2.time)
-	fmt.Println(ping3.url, "is:", ping3.time)
+	//let the go-routines finish running before the main function stops running
+	waitToFinish.Wait()
+	// receive data from channel and print out the data
+	ping1, ping2, ping3, ping4, ping5, ping6, ping7, ping8, ping9 := <-c, <-c, <-c, <-c, <-c, <-c, <-c, <-c, <-c
 
-	var input string
-	fmt.Scanln(&input)
+	fmt.Println(ping1.url, "is: ", ping1.time)
+	fmt.Println(ping2.url, "is: ", ping2.time)
+	fmt.Println(ping3.url, "is: ", ping3.time)
+	fmt.Println(ping4.url, "is: ", ping4.time)
+	fmt.Println(ping5.url, "is: ", ping5.time)
+	fmt.Println(ping6.url, "is: ", ping6.time)
+	fmt.Println(ping7.url, "is: ", ping7.time)
+	fmt.Println(ping8.url, "is: ", ping8.time)
+	fmt.Println(ping9.url, "is: ", ping9.time)
+
+	totalTime2 := time.Now()
+	totalTime := totalTime2.Sub(totalTime1)
+	fmt.Println("total main time:", totalTime)
 }
 
 // asks for user input of web addresses
@@ -58,9 +81,7 @@ func askInput() (string, string, string) {
 	return url1, url2, url3
 }
 
-// function for go routines to ping a single web address 100 times
 func singlePing(url string, c chan pingData) {
-	// captures time at start of routine
 	time1 := time.Now()
 	// creating command using input of number of pings and web address
 	cmd := exec.Command("ping", "-c 100", url)
@@ -77,4 +98,7 @@ func singlePing(url string, c chan pingData) {
 
 	// sends data through channel
 	c <- pingData{url, timeDiff}
+
+	// utilize the sync variable to know when the function is done running
+	defer waitToFinish.Done()
 }
